@@ -1,77 +1,3 @@
-// require("dotenv").config();
-// const express = require("express");
-// const cors = require("cors");
-// const dns = require("dns");
-// const app = express();
-
-// // Basic Configuration
-// const port = process.env.PORT || 3000;
-
-// app.use(cors());
-// app.use(express.urlencoded({ extended: true }));
-// app.use("/public", express.static(`${process.cwd()}/public`));
-
-// app.get("/", function (req, res) {
-//   res.sendFile(process.cwd() + "/views/index.html");
-// });
-
-// // Your first API endpoint
-// app.get("/api/hello", function (req, res) {
-//   res.json({ greeting: "hello API" });
-// });
-
-// // URL Shortener Microservice Endpoints
-
-// // URL database (simulated, replace with a real database in production)
-// const urlDatabase = [];
-
-// // POST endpoint to create short URL
-// app.post("/api/shorturl", function (req, res) {
-//   const originalUrl = req.body.url;
-
-//   // Validate URL format
-//   const urlRegex = /^https?:\/\/(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z0-9]+(\/\S*)?$/;
-//   if (!urlRegex.test(originalUrl)) {
-//     return res.json({ error: "invalid url" });
-//   }
-
-//   // Validate DNS
-//   const urlObj = new URL(originalUrl);
-//   dns.lookup(urlObj.hostname, (err) => {
-//     if (err) {
-//       return res.json({ error: "invalid url" });
-//     }
-
-//     // Generate short_url (for demo, use array index as short_url)
-//     const shortUrl = urlDatabase.length; // Simulated short_url
-
-//     // Store original_url and short_url
-//     urlDatabase.push({ original_url: originalUrl, short_url: shortUrl });
-
-//     // Respond with the stored data
-//     res.json({ original_url: originalUrl, short_url: shortUrl });
-//   });
-// });
-
-// // GET endpoint to redirect short URL to original URL
-// app.get("/api/shorturl/:short_url", function (req, res) {
-//   const shortUrl = req.params.short_url;
-
-//   // Lookup the original_url based on short_url
-//   const urlEntry = urlDatabase[shortUrl];
-
-//   if (!urlEntry) {
-//     return res.json({ error: "invalid short_url" });
-//   }
-
-//   // Redirect to the original_url
-//   res.redirect(urlEntry.original_url);
-// });
-
-// app.listen(port, function () {
-//   console.log(`Listening on port ${port}`);
-// });
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -87,16 +13,18 @@ const port = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI;
 
 // Connect to MongoDB
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => {
-  console.log("Connected to MongoDB");
-});
+mongoose
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // Remove useCreateIndex from here
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 // Define URL schema and model
 const urlSchema = new mongoose.Schema({
